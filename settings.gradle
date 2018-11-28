@@ -4,9 +4,6 @@ pluginManagement {
             if (requested.id.id == "kotlin-multiplatform") {
                 useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${requested.version}")
             }
-//            if (requested.id.id.startsWith("com.github.salomonbrys.gradle.kotlin.js.")) {
-//                useModule("com.github.salomonbrys.gradle.kotlin.js:kotlin-js-gradle-utils:1.0.0")
-//            }
         }
     }
 
@@ -14,13 +11,14 @@ pluginManagement {
         mavenLocal()
         mavenCentral()
         maven { url 'https://plugins.gradle.org/m2/' }
-//        maven { url = "https://dl.bintray.com/salomonbrys/gradle-plugins" }
     }
 }
+
 rootProject.name = 'kotlin-mpp-sandbox'
 
 
 enableFeaturePreview('GRADLE_METADATA')
+//enableFeaturePreview('STABLE_PUBLISHING')
 
 include ":subprojects:model",
         ":subprojects:model-serialization",
