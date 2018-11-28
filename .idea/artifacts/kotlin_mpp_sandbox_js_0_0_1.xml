@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="kotlin-mpp-sandbox-js-0.0.1">
+    <output-path>$PROJECT_DIR$/build/libs</output-path>
+    <root id="archive" name="kotlin-mpp-sandbox-js-0.0.1.jar">
+      <element id="module-output" name="com.example.kotlin-mpp-sandbox.jsMain" />
+    </root>
+  </artifact>
+</component>
