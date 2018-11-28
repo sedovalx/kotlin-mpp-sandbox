@@ -11,7 +11,7 @@ allprojects {
 
 subprojects {
     // TODO: doesn't work along with the kotlin-multiplatform in Gradle 5
-//    apply plugin: "maven-publish"
+    apply(plugin = "maven-publish")
     
     repositories {
         mavenCentral()
