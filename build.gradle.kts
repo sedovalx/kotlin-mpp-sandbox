@@ -1,6 +1,4 @@
 plugins {
-    id("kotlin-multiplatform") apply false
-    id("com.moowork.node") version "1.2.0" apply false
     id("com.dorongold.task-tree") version "1.3.1"
 }
 
@@ -10,8 +8,11 @@ allprojects {
 }
 
 subprojects {
-    // TODO: doesn't work along with the kotlin-multiplatform in Gradle 5
-    apply(plugin = "maven-publish")
+    /**
+     * TODO: doesn't work along with the kotlin-multiplatform in Gradle 5
+     * See: https://youtrack.jetbrains.com/issue/KT-28520
+     */
+//    apply(plugin = "maven-publish")
     
     repositories {
         mavenCentral()

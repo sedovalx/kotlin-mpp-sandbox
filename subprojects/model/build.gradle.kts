@@ -14,7 +14,6 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("kotlin-multiplatform")
-    id("com.moowork.node")
 }
 
 kotlin {
@@ -70,44 +69,4 @@ kotlin {
     }
 }
 
-node {
-    yarnVersion = "1.12.3"
-    workDir = file("${rootProject.buildDir}/nodejs")
-    nodeModulesDir = file("${rootProject.projectDir}")
-}
-
-tasks {
-    val yarn by getting
-    val compileKotlinJs by getting(AbstractCompile::class)
-    val compileTestKotlinJs by getting(Kotlin2JsCompile::class)
-    val jsTest by getting
-
-    val populateNodeModulesForTests by creating {
-        dependsOn(yarn, compileKotlinJs)
-        doLast {
-            copy {
-                from(compileKotlinJs.destinationDir)
-                configurations["jsRuntimeClasspath"].forEach {
-                    from(zipTree(it.absolutePath).matching { include("*.js") })
-                }
-                configurations["jsTestRuntimeClasspath"].forEach {
-                    from(zipTree(it.absolutePath).matching { include("*.js") })
-                }
-
-                into("$rootDir/node_modules")
-            }
-        }
-    }
-
-    val runTestsWithMocha by creating(NodeTask::class) {
-        dependsOn(populateNodeModulesForTests)
-        setScript(file("$rootDir/node_modules/mocha/bin/mocha"))
-        setArgs(listOf(
-            compileTestKotlinJs.outputFile,
-            "--reporter-options",
-            "topLevelSuite=${project.name}-tests"
-        ))
-    }
-
-    jsTest.dependsOn(runTestsWithMocha)
-}
+configureKotlinJsTests()
