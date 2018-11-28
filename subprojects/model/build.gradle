@@ -17,9 +17,10 @@ kotlin {
             compilations.all {
                 tasks[compileKotlinTaskName].kotlinOptions {
                     languageVersion = "1.3"
-                    moduleKind = "umd"
+                    moduleKind = "commonjs"
                     sourceMap = true
                     metaInfo = true
+                    main = 'call'
                 }
             }
         }
@@ -61,72 +62,57 @@ kotlin {
 }
 
 node {
-    download = false
+//    download = true
 //    version = '8.12.0'
+    yarnVersion = '1.12.3'
 //    distBaseUrl = 'https://nodejs.org/dist'
-//    workDir = file("${rootProject.buildDir}/nodejs")
-//    nodeModulesDir = file("${rootProject.projectDir}")
+    workDir = file("${rootProject.buildDir}/nodejs")
+    nodeModulesDir = file("${rootProject.projectDir}")
 }
 
-def testJsFolder = "$buildDir/test-js"
-
-/**
- * Copy production project output
- */
-task copyJsMainOutput(type: Copy) {
-    dependsOn compileKotlinJs
-
-    from compileKotlinJs.outputFile.parentFile.path
-    include "*.js"
-    include "*.js.map"
-    into "$testJsFolder/node_modules"
-}
-
-/**
- * Copy test project output
- */
-task copyJsTestOutput(type: Copy) {
-    dependsOn compileTestKotlinJs
-
-    from compileTestKotlinJs.outputFile.parentFile.path
-    include "*.js"
-    include "*.js.map"
-    into testJsFolder
-}
-
-def jsPathPredicate = { FileTreeElement fileTreeElement ->
-    def path = fileTreeElement.path
-    (path.endsWith(".js") || path.endsWith(".js.map")) &&
-            (path.startsWith("META-INF/resources/") || !path.startsWith("META-INF/"))
-}
-
-def executionClosure = { Task task ->
-    { File file ->
-        task.from(zipTree(file.absolutePath), {
-            includeEmptyDirs = false
-            task.include(jsPathPredicate)
-        })
+task printConfigurations(dependsOn: [yarn, compileKotlinJs]) {
+    doLast {
+        configurations.each { 
+            println(it)
+            try {
+                it.each {
+                    def fileTree = zipTree(it.absolutePath).matching { 
+                        include '*.js'
+                        include "*.js.map"
+                    }
+                    fileTree.getFiles().each {
+                        println("\t" + it.absolutePath)
+                    }
+                }
+            } catch (Exception ex) {
+                println("!! " + ex.message)
+            }
+            
+        }
     }
 }
 
-afterEvaluate {
-    task assembleTest(type: Sync) {
-        configurations.jsTestCompileClasspath.each (executionClosure(it))
-        into "$testJsFolder/node_modules"
+task populateNodeModulesForTests(dependsOn: [yarn, compileKotlinJs]) {
+    doLast {
+        copy {
+            from compileKotlinJs.destinationDir
+            configurations.jsRuntimeClasspath.each {
+                from zipTree(it.absolutePath).matching { include '*.js' }
+            }
+            configurations.jsTestRuntimeClasspath.each {
+                from zipTree(it.absolutePath).matching { include '*.js' }
+            }
+            
+            into "${rootDir}/node_modules"
+        }
     }
-
-    assemble.dependsOn assembleTest
 }
 
-task installMocha(type: NpmTask) {
-    args = ['install', 'mocha']
+task runTestsWithMocha(type: NodeTask, dependsOn: [populateNodeModulesForTests]) {
+    script = file("${rootDir}/node_modules/mocha/bin/mocha")
+    args = [
+            compileTestKotlinJs.outputFile,
+            "--reporter-options", "topLevelSuite=${project.name}-tests",
+    ]
 }
-
-// We run mocha tests from our directory.
-task runMocha(type: NodeTask) {
-    dependsOn installMocha, copyJsMainOutput, copyJsTestOutput, assemble
-    script = file('node_modules/mocha/bin/mocha')
-    args = ["$testJsFolder/model_test.js"]
-}
-
-jsTest.dependsOn runMocha
+jsTest.dependsOn(runTestsWithMocha)

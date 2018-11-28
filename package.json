@@ -1,0 +1,9 @@
+{
+  "name": "mpp-sandbox",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Kotlin multi-platform project with js tests",
+  "devDependencies": {
+    "mocha": "5.2.0"
+  }
+}
