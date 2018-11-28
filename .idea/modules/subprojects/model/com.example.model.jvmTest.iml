@@ -4,9 +4,9 @@
     <facet type="kotlin-language" name="Kotlin">
       <configuration version="3" platform="JVM 1.8" useProjectSettings="false" isTestModule="true" externalProjectId=":subprojects:model">
         <sourceSets>
+          <sourceSet>com.example.model.commonTest</sourceSet>
           <sourceSet>com.example.model.jvmMain</sourceSet>
           <sourceSet>com.example.model.commonMain</sourceSet>
-          <sourceSet>com.example.model.commonTest</sourceSet>
         </sourceSets>
         <newMppModelJpsModuleKind>COMPILATION_AND_SOURCE_SET_HOLDER</newMppModelJpsModuleKind>
         <compilerSettings />

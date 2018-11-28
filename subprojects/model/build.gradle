@@ -1,4 +1,6 @@
 apply plugin: "kotlin-multiplatform"
+apply plugin: "com.github.salomonbrys.gradle.kotlin.js.mpp-tests.node"
+apply plugin: "com.github.salomonbrys.gradle.kotlin.js.mpp-assemble-web"
 
 kotlin {
     targets {
@@ -59,67 +61,83 @@ kotlin {
     }
 }
 
-apply plugin: "com.moowork.node"
-
-afterEvaluate {
-    task populateNodeModules(type: Copy, dependsOn: jsTestClasses) {
-        from compileTestKotlinJs.kotlinOptions.outputFile
-        from compileKotlinJs.kotlinOptions.outputFile
-
-        configurations.jsTestCompileClasspath.each {
-            from zipTree(it.absolutePath).matching {
-                include '*.js'
-                include '*.map'
-            }
-        }
-
-        into "${buildDir}/node_modules"
-    }
-
-    task mochaInstall(type: NpmTask) {
-        args = ['install', 'mocha', 'mochawesome', 'mocha-simple-html-reporter', 'mocha-multi-reporters', 'mocha-junit-reporter', 'source-map-support']
-        outputs.upToDateWhen { new File("$projectDir/node_modules").exists() }
-    }
-
-    task mochaTest(type: NodeTask, dependsOn: [mochaInstall, populateNodeModules]) {
-        def mochaMultiReportersConfigJsonFile = new File("$buildDir/mocha-multi-reporters-config.json")
-        doFirst {
-            // https://www.npmjs.com/package/mocha-multi-reporters
-            new File("$buildDir/test-results/jsTest").mkdirs()
-            mochaMultiReportersConfigJsonFile.write("""{
-                "reporterEnabled": "dot,mocha-junit-reporter,mochawesome",
-                "mochawesomeReporterOptions": {
-                    "reportFilename": "index",
-                    "quiet": true
-                },
-                "mochaJunitReporterReporterOptions": {
-                    "testsuitesTitle": true,
-                    "toConsole": false,
-                    "suiteTitleSeparatedBy": ".",
-                    "mochaFile": "$buildDir/test-results/jsTest/TEST-test.xml"
-                }
-            }""")
-        }
-        script = rootProject.file("$buildDir/../node_modules/mocha/bin/mocha")
-
-        //new File(compileTestKotlinJs.kotlinOptions.outputFile).write("require('source-map-support').install();\n" + new File(compileTestKotlinJs.kotlinOptions.outputFile).readLines().join("\n"))
-        //println(compileTestKotlinJs.kotlinOptions.outputFile)
-
-        args = [compileTestKotlinJs.kotlinOptions.outputFile, "-r", "source-map-support/register", "--reporter", "mocha-multi-reporters", "--reporter-options", "configFile=$mochaMultiReportersConfigJsonFile"]
-
-        //println("mocha " + args.join(" "))
-        execOverrides {
-            it.workingDir = buildDir
-        }
-
-        doLast {
-            copy {
-                from "$buildDir/mochawesome-report"
-                into "$buildDir/reports/tests/jsTest"
-            }
-            println("Report saved to $buildDir/reports/tests/jsTest/index.html")
+kotlinJsNodeTests {
+    targets {
+        create("js") {
+            engine = mocha
         }
     }
-
-    jsTest.finalizedBy(mochaTest)
 }
+
+assembleWeb {
+    targets {
+        create("js") {
+            outputDir = "$buildDir/web/kotlin-js"
+        }
+    }
+}
+
+//apply plugin: "com.moowork.node"
+//
+//afterEvaluate {
+//    task populateNodeModules(type: Copy, dependsOn: jsTestClasses) {
+//        from compileTestKotlinJs.kotlinOptions.outputFile
+//        from compileKotlinJs.kotlinOptions.outputFile
+//
+//        configurations.jsTestCompileClasspath.each {
+//            from zipTree(it.absolutePath).matching {
+//                include '*.js'
+//                include '*.map'
+//            }
+//        }
+//
+//        into "${buildDir}/node_modules"
+//    }
+//
+//    task mochaInstall(type: NpmTask) {
+//        args = ['install', 'mocha', 'mochawesome', 'mocha-simple-html-reporter', 'mocha-multi-reporters', 'mocha-junit-reporter', 'source-map-support']
+//        outputs.upToDateWhen { new File("$projectDir/node_modules").exists() }
+//    }
+//
+//    task mochaTest(type: NodeTask, dependsOn: [mochaInstall, populateNodeModules]) {
+//        def mochaMultiReportersConfigJsonFile = new File("$buildDir/mocha-multi-reporters-config.json")
+//        doFirst {
+//            // https://www.npmjs.com/package/mocha-multi-reporters
+//            new File("$buildDir/test-results/jsTest").mkdirs()
+//            mochaMultiReportersConfigJsonFile.write("""{
+//                "reporterEnabled": "dot,mocha-junit-reporter,mochawesome",
+//                "mochawesomeReporterOptions": {
+//                    "reportFilename": "index",
+//                    "quiet": true
+//                },
+//                "mochaJunitReporterReporterOptions": {
+//                    "testsuitesTitle": true,
+//                    "toConsole": false,
+//                    "suiteTitleSeparatedBy": ".",
+//                    "mochaFile": "$buildDir/test-results/jsTest/TEST-test.xml"
+//                }
+//            }""")
+//        }
+//        script = rootProject.file("$buildDir/../node_modules/mocha/bin/mocha")
+//
+//        //new File(compileTestKotlinJs.kotlinOptions.outputFile).write("require('source-map-support').install();\n" + new File(compileTestKotlinJs.kotlinOptions.outputFile).readLines().join("\n"))
+//        //println(compileTestKotlinJs.kotlinOptions.outputFile)
+//
+//        args = [compileTestKotlinJs.kotlinOptions.outputFile, "-r", "source-map-support/register", "--reporter", "mocha-multi-reporters", "--reporter-options", "configFile=$mochaMultiReportersConfigJsonFile"]
+//
+//        //println("mocha " + args.join(" "))
+//        execOverrides {
+//            it.workingDir = buildDir
+//        }
+//
+//        doLast {
+//            copy {
+//                from "$buildDir/mochawesome-report"
+//                into "$buildDir/reports/tests/jsTest"
+//            }
+//            println("Report saved to $buildDir/reports/tests/jsTest/index.html")
+//        }
+//    }
+//
+//    jsTest.finalizedBy(mochaTest)
+//}
