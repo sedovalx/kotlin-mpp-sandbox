@@ -19,7 +19,7 @@ plugin uses deprecated publication features that have been removed in Gradle 5.0
 
 TODO:
 - Sample of dependencies between MPP modules
-- Sample of JS module with tests with a usage of an external JS dependency via ts2kt (Definitely typed)
-- Combining a JS dist with weppack
+- Sample of a JS module with tests with a usage of an external JS dependency via ts2kt (Definitely typed)
+- JS dist build with weppack
 - Publicstion of a Maven artifact with JVM classes
 - Publication of an NPM module with JS dist
