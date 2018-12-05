@@ -38,3 +38,13 @@ ts2kt -d subprojects/model/src/jsMain/kotlin/external/moment node_modules/moment
 - You need to require the external JS module in your generated JS code. For that purpose, add 
 `@JsModule("moment)` and optionally `@JsNonModule` annotations to the generated constructions that 
 you use in your code
+
+## How to run tests?
+Just run `./gradlew clean test --continue` in the terminal to run all the tests (JVM, common, JS) in 
+the project. For now, the `--continue` parameter is required, otherwise the build stops in case 
+there are failed tests during the `runTestsWithMocha` task execution. The best option would be to 
+have a setting for the `runTestsWithMocha` to continue the build but fail it in the end - the same as
+with the `--continue` option but local.
+
+If you start tests by running a Gradle task from the IDEA's Gradle tool panel then only JVM and common
+tests are shown in the Gradle Test Runner window. 

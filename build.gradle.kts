@@ -38,4 +38,3 @@ buildtimetracker {
 testlogger {
     theme = ThemeType.STANDARD
 }
-
