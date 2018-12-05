@@ -1,11 +1,12 @@
 package sample
 
 import kotlin.test.Test
-import kotlin.test.assertTrue
+import kotlin.test.assertEquals
 
 class SampleTests {
     @Test
-    fun testMe() {
-        assertTrue(Sample().checkMe() > 0)
+    fun test_timestamp_creation() {
+        val t = currentTime()
+        assertEquals(0, t.fraction)
     }
 }

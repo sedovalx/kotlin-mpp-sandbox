@@ -21,5 +21,20 @@ TODO:
 - Sample of dependencies between MPP modules
 - Sample of a JS module with tests with a usage of an external JS dependency via ts2kt (Definitely typed)
 - JS dist build with weppack
-- Publicstion of a Maven artifact with JVM classes
+- Publication of a Maven artifact with JVM classes
 - Publication of an NPM module with JS dist
+
+## How to add a new external JS dependency?
+- Add a dependency into the root `project.json`'s dependencies section
+- Run `npm install` to download the dependency
+- Check if the dependency folder in `node_modules` contains definitely-typed declarations (*.d.ts). If not 
+you may try to find it on https://github.com/DefinitelyTyped/DefinitelyTyped repo
+- Install the converter to convert definitely-typed declarations into Kotlin code `npm install -g ts2kt`
+- Run the converter
+```bash
+ts2kt -d subprojects/model/src/jsMain/kotlin/external/moment node_modules/moment/moment.d.ts
+```
+- Inspect the generated code. Unfortunately sometimes it needs to be fixed by hands.
+- You need to require the external JS module in your generated JS code. For that purpose, add 
+`@JsModule("moment)` and optionally `@JsNonModule` annotations to the generated constructions that 
+you use in your code

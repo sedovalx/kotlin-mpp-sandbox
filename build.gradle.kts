@@ -1,5 +1,6 @@
 plugins {
     id("com.dorongold.task-tree") version "1.3.1"
+    id("net.rdrei.android.buildtimetracker") version "0.11.0"
 }
 
 allprojects {
@@ -19,4 +20,13 @@ subprojects {
     }
 }
 
+buildtimetracker {
+    reporters {
+        register("summary") {
+            options["ordered"] = "true"
+            options["barstyle"] = "ascii"
+            options["shortenTaskNames"] = "false"
+        }
+    }
+}
 

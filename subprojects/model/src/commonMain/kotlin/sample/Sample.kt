@@ -1,11 +1,12 @@
 package sample
 
-expect class Sample() {
-    fun checkMe(): Int
-}
+expect fun currentTime(): Timestamp
 
-expect object Platform {
-    val name: String
+data class Timestamp(val millis: Long, val fraction: Int = 0) : Comparable<Timestamp> {
+    override fun compareTo(other: Timestamp): Int {
+        return when {
+            this.millis != other.millis -> this.millis.compareTo(other.millis)
+            else -> this.fraction.compareTo(other.fraction)
+        }
+    }
 }
-
-fun hello(): String = "Hello from ${Platform.name}"
