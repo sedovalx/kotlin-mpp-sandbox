@@ -5,7 +5,7 @@ import kotlin.test.assertTrue
 
 class SampleTestsJVM {
     @Test
-    fun testTimestamp() {
+    fun `test timestamp`() {
         val t = currentTime()
         assertTrue(System.currentTimeMillis() - t.millis <= 10)
     }
