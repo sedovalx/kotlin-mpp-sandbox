@@ -9,6 +9,20 @@ plugins {
 allprojects {
     group = "com.example"
     version = "0.0.1"
+
+    configurations.all {
+        resolutionStrategy {
+            force(Deps.kotlin_common)
+            force(Deps.kotlin_test_common)
+            force(Deps.kotlin_test_annotations_common)
+            force(Deps.kotlin_stdlib_jdk8)
+            force(Deps.kotlin_test)
+            force(Deps.kotlin_test_junit)
+            force(Deps.kotlin_stdlib_js)
+            force(Deps.kotlin_test_js)
+            force(Deps.kotlin_reflect)
+        }
+    }
 }
 
 subprojects {

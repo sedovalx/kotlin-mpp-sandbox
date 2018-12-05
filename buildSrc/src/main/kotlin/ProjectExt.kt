@@ -3,6 +3,8 @@ import com.moowork.gradle.node.task.NodeTask
 import org.gradle.api.Project
 import org.gradle.api.tasks.compile.AbstractCompile
 import org.gradle.kotlin.dsl.*
+import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.tasks.Kotlin2JsCompile
 
 fun Project.configureKotlinJsTests() {
@@ -48,5 +50,68 @@ fun Project.configureKotlinJsTests() {
         }
 
         jsTest.dependsOn(runTestsWithMocha)
+    }
+}
+
+fun Project.configureMultiplatform(jvm: Boolean = true, js: Boolean = true, configuration: NamedDomainObjectContainerScope<KotlinSourceSet>.() -> Unit = {}) {
+    apply(plugin = "kotlin-multiplatform")
+
+    configure<KotlinMultiplatformExtension> {
+        if (jvm) {
+            fromJvmPreset {
+                compilations.all {
+                    compileKotlinTask(this).jvmVersion("1.8")
+                }
+            }
+        }
+        if (js) {
+            fromJsPreset {
+                compilations.all {
+                    compileKotlinTask(this).kotlinOptions {
+                        languageVersion = "1.3"
+                        moduleKind = "commonjs"
+                        sourceMap = true
+                        metaInfo = true
+                        main = "call"
+                    }
+                }
+            }
+        }
+        configureSourceSets {
+            "commonMain" {
+                dependencies {
+                    implementation(Deps.kotlin_common)
+                }
+            }
+            "commonTest" {
+                dependencies {
+                    implementation(Deps.kotlin_test_common)
+                    implementation(Deps.kotlin_test_annotations_common)
+                }
+            }
+            "jvmMain" {
+                dependencies {
+                    implementation(Deps.kotlin_stdlib_jdk8)
+                }
+            }
+            "jvmTest" {
+                dependencies {
+                    implementation(Deps.kotlin_test)
+                    implementation(Deps.kotlin_test_junit)
+                }
+            }
+            "jsMain" {
+                dependencies {
+                    implementation(Deps.kotlin_stdlib_js)
+                }
+            }
+            "jsTest" {
+                dependencies {
+                    implementation(Deps.kotlin_test_js)
+                }
+            }
+
+            configuration(this)
+        }
     }
 }

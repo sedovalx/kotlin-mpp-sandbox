@@ -4,10 +4,10 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class SampleTests {
+class TimestampTests {
     @Test
     fun testTimestampsCreation() {
-        val t = currentTime()
+        val t = Timestamp.now
         assertEquals(0, t.fraction)
     }
 

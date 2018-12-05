@@ -107,6 +107,7 @@ typings/
 # .idea/modules.xml
 .idea/*.iml
 .idea/modules
+.idea/artifacts
 
 # CMake
 cmake-build-*/
